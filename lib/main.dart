@@ -9,8 +9,8 @@ import 'models/pin_pill_info.dart';
 const double CAMERA_ZOOM = 16;
 const double CAMERA_TILT = 80;
 const double CAMERA_BEARING = 30;
-const LatLng SOURCE_LOCATION = LatLng(49.05831686, 33.47969502);
-const LatLng DEST_LOCATION = LatLng(49.10142678, 33.42421085);
+const LatLng SOURCE_LOCATION = LatLng(49.10142678, 33.42421085);
+const LatLng DEST_LOCATION = LatLng(49.05831686, 33.47969502);
 
 void main() =>
     runApp(MaterialApp(debugShowCheckedModeBanner: false, home: MapPage()));
@@ -88,7 +88,15 @@ class MapPageState extends State<MapPage> {
   void setInitialLocation() async {
     // set the initial location by pulling the user's
     // current location from the location's getLocation()
-    currentLocation = await location.getLocation();
+    try {
+      currentLocation = await location.getLocation();
+    } catch (err) {
+      print(err);
+      currentLocation = LocationData.fromMap({
+        "latitude": SOURCE_LOCATION.latitude,
+        "longitude": SOURCE_LOCATION.longitude
+      });
+    }
 
     // hard-coded destination for this example
     destinationLocation = LocationData.fromMap({
