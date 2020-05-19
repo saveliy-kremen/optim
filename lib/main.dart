@@ -40,8 +40,8 @@ class MapPageState extends State<MapPage> {
   Location location;
   double pinPillPosition = -100;
   PinInformation currentlySelectedPin = PinInformation(
-      pinPath: '',
-      avatarPath: '',
+      pinPath: "assets/driving_pin.png",
+      avatarPath: "assets/friend1.jpg",
       location: LatLng(0, 0),
       locationName: '',
       labelColor: Colors.grey);
@@ -88,21 +88,35 @@ class MapPageState extends State<MapPage> {
   void setInitialLocation() async {
     // set the initial location by pulling the user's
     // current location from the location's getLocation()
-    try {
-      currentLocation = await location.getLocation();
-    } catch (err) {
-      print(err);
-      currentLocation = LocationData.fromMap({
-        "latitude": SOURCE_LOCATION.latitude,
-        "longitude": SOURCE_LOCATION.longitude
-      });
-    }
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
 
     // hard-coded destination for this example
     destinationLocation = LocationData.fromMap({
       "latitude": DEST_LOCATION.latitude,
       "longitude": DEST_LOCATION.longitude
     });
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        if (!_serviceEnabled) {
+          return;
+        }
+      }
+    }
+
+    currentLocation = await location.getLocation();
   }
 
   @override
@@ -151,6 +165,14 @@ class MapPageState extends State<MapPage> {
   void showPinsOnMap() {
     // get a LatLng for the source location
     // from the LocationData currentLocation object
+
+    if (currentLocation == null) {
+      currentLocation = LocationData.fromMap({
+        "latitude": SOURCE_LOCATION.latitude,
+        "longitude": SOURCE_LOCATION.longitude
+      });
+    }
+
     var pinPosition =
         LatLng(currentLocation.latitude, currentLocation.longitude);
     // get a LatLng out of the LocationData object

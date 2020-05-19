@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:optim/models/pin_pill_info.dart';
 
 class MapPinPillComponent extends StatefulWidget {
-  double pinPillPosition;
-  PinInformation currentlySelectedPin;
+  final double pinPillPosition;
+  final PinInformation currentlySelectedPin;
 
   MapPinPillComponent({this.pinPillPosition, this.currentlySelectedPin});
 
